@@ -22,17 +22,19 @@ const Diagnosis = () => {
 
   const handleFile = (file) => {
     if (!file) return;
-    
-    // Check if it is indeed an image
-    if (!file.type.startsWith("image/")) {
-      setError(t("errorDiag"));
+
+    const validExtensions = /\.(jpg|jpeg|png|webp|jfif)$/i;
+    const isImageMime = file.type ? file.type.startsWith("image/") : true;
+
+    if (!isImageMime && !validExtensions.test(file.name)) {
+      setError("Please select a valid image file (.jpg, .jpeg, .png, .webp)");
       return;
     }
-    
+
     setError(null);
     setSelectedFile(file);
     setPreviewUrl(URL.createObjectURL(file));
-    setReport(null); // Clear previous results
+    setReport(null);
   };
 
   const handleDragOver = (e) => {
@@ -68,20 +70,18 @@ const Diagnosis = () => {
     setLoading(true);
     setError(null);
 
-    // MEMBER 2 INTEGRATION START
-    // Call POST /predict API here
     try {
       const response = await predictDisease(selectedFile);
       setReport(response);
-      // Save output in shared state for spraying page to auto-read
-      setPredictedDisease(response.disease);
+      if (response && response.disease) {
+        setPredictedDisease(response.disease);
+      }
     } catch (err) {
-      setError(t("errorDiag"));
+      setError(err.message || t("errorDiag") || "Failed to analyze leaf image.");
       console.error("Diagnosis error:", err);
     } finally {
       setLoading(false);
     }
-    // MEMBER 2 INTEGRATION END
   };
 
   const handleReset = () => {
@@ -91,7 +91,6 @@ const Diagnosis = () => {
     setError(null);
   };
 
-  // Severity color badge resolver
   const getSeverityBadge = (severity) => {
     const s = severity ? severity.toLowerCase() : "";
     if (s.includes("severe") || s.includes("high")) {
@@ -118,7 +117,6 @@ const Diagnosis = () => {
             Upload Infected Leaf Image
           </h3>
 
-          {/* Drag & Drop Box */}
           <div
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -134,7 +132,7 @@ const Diagnosis = () => {
               type="file"
               ref={fileInputRef}
               onChange={handleFileSelect}
-              accept="image/*"
+              accept="image/png, image/jpeg, image/jpg, image/webp"
               className="hidden"
             />
 
@@ -166,13 +164,12 @@ const Diagnosis = () => {
                   {t("dragDropText")}
                 </p>
                 <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
-                  Supports JPG, JPEG, PNG formats
+                  Supports JPG, JPEG, PNG, WEBP formats
                 </p>
               </>
             )}
           </div>
 
-          {/* Trigger Button bar */}
           {selectedFile && (
             <div className="mt-6 flex gap-4">
               <button
@@ -222,12 +219,11 @@ const Diagnosis = () => {
               </div>
             ) : report ? (
               <div className="space-y-6">
-                {/* Metric cards grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <MetricCard
                     title={t("metricDisease")}
                     value={report.disease}
-                    colorClass={report.severity.toLowerCase().includes("severe") ? "red" : (report.severity.toLowerCase().includes("moderate") ? "yellow" : "emerald")}
+                    colorClass={report.severity?.toLowerCase().includes("severe") ? "red" : (report.severity?.toLowerCase().includes("moderate") ? "yellow" : "emerald")}
                   />
                   <MetricCard
                     title={t("metricConfidence")}
@@ -239,11 +235,10 @@ const Diagnosis = () => {
                     title={t("metricSeverity")}
                     value={report.severity}
                     statusBadge={getSeverityBadge(report.severity)}
-                    colorClass={report.severity.toLowerCase().includes("severe") ? "red" : (report.severity.toLowerCase().includes("moderate") ? "yellow" : "emerald")}
+                    colorClass={report.severity?.toLowerCase().includes("severe") ? "red" : (report.severity?.toLowerCase().includes("moderate") ? "yellow" : "emerald")}
                   />
                 </div>
 
-                {/* Advisory Panel */}
                 <div className="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden mt-6">
                   <button
                     onClick={() => setAdvisoryExpanded(!advisoryExpanded)}
