@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'https://kishandrishti.onrender.com';
 
 // 1. Weather Advisory API (MandiWeather.jsx)
 export const getWeather = async (location) => {
