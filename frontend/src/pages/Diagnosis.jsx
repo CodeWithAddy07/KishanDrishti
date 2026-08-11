@@ -6,6 +6,11 @@ import { predictDisease } from "../services/api";
 import MetricCard from "../components/MetricCard";
 import SectionTitle from "../components/SectionTitle";
 
+// Member 2 Components Import
+import DiseaseDetector from "../components/Member2/DiseaseDetector";
+import ModelMetrics from "../components/Member2/ModelMetrics";
+import ClassList from "../components/Member2/ClassList";
+
 const Diagnosis = () => {
   const { t } = useLanguage();
   const { setPredictedDisease } = useSharedState();
@@ -103,12 +108,13 @@ const Diagnosis = () => {
   };
 
   return (
-    <div className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
       <SectionTitle
         title={t("diagTitle")}
         subtitle={t("diagSubtitle")}
       />
 
+      {/* Main Upload and Results Section */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Upload Column */}
         <div className="lg:col-span-5 bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-md border border-slate-100 dark:border-slate-800 transition-colors duration-300">
@@ -280,6 +286,17 @@ const Diagnosis = () => {
             </div>
           )}
         </div>
+      </div>
+
+      {/* ============================================================ */}
+      {/* MEMBER 2 - 20 CLASS DETECTION & EVALUATION SECTION */}
+      {/* ============================================================ */}
+      <hr className="border-slate-200 dark:border-slate-800 my-8" />
+
+      <div className="space-y-8">
+        <DiseaseDetector />
+        <ModelMetrics />
+        <ClassList />
       </div>
     </div>
   );
