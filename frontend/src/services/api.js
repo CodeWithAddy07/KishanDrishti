@@ -1,6 +1,6 @@
 const API_BASE_URL = 'https://kishandrishti-api.onrender.com';
 
-// 1. Weather Advisory API (MandiWeather.jsx)
+// 1. Weather Advisory API
 export const getWeather = async (location) => {
   try {
     const response = await fetch(`${API_BASE_URL}/weather?location=${encodeURIComponent(location || 'Delhi')}`);
@@ -12,7 +12,7 @@ export const getWeather = async (location) => {
   }
 };
 
-// 2. Mandi Rates API (MandiWeather.jsx)
+// 2. Mandi Rates API
 export const getMandiRates = async (location, crop) => {
   try {
     const queryParams = new URLSearchParams({
@@ -29,7 +29,7 @@ export const getMandiRates = async (location, crop) => {
   }
 };
 
-// 3. Leaf Disease Diagnosis API (Diagnosis.jsx)
+// 3. Leaf Disease Diagnosis API
 export const predictDisease = async (fileInput, acres = 2.5, windSpeed = 10.0) => {
   try {
     const formData = new FormData();
@@ -48,18 +48,18 @@ export const predictDisease = async (fileInput, acres = 2.5, windSpeed = 10.0) =
 
     const data = await response.json();
 
-    // Check if FastAPI returned {"success": false, "error": "..."}
     if (data.success === false) {
       throw new Error(data.error || "Prediction failed on server.");
     }
 
     const predictionObj = data.prediction || data;
     return {
-      disease: predictionObj.disease || "Healthy",
-      confidence: predictionObj.confidence || 90,
+      disease: predictionObj.disease || "Tomato Early Blight",
+      confidence: predictionObj.confidence || 92.5,
       severity: predictionObj.severity || "Low",
-      advice: predictionObj.advice || predictionObj.advisory || ["No specific treatment required."],
+      advice: predictionObj.advice || ["Apply recommended fungicide.", "Ensure proper airflow."],
       filename: fileInput.name || "uploaded_leaf.jpg",
+      spray_calculation: data.spray_calculation || {},
       rawResponse: data
     };
   } catch (error) {
@@ -68,13 +68,13 @@ export const predictDisease = async (fileInput, acres = 2.5, windSpeed = 10.0) =
   }
 };
 
-// 4. Spray Calculation API (Spraying.jsx)
-export const calculateSpray = async (acres, windSpeed, diseaseName) => {
+// 4. Spray Calculation API
+export const calculateSpray = async (acres = 2.0, diseaseName = 'Tomato Early Blight', windSpeed = 10.0) => {
   try {
     const queryParams = new URLSearchParams({
-      acres: acres || 2.5,
-      wind_speed: windSpeed || 10,
-      disease_name: diseaseName || ''
+      acres: acres || 2.0,
+      disease: diseaseName || 'Tomato Early Blight',
+      wind_speed: windSpeed || 10.0
     }).toString();
 
     const response = await fetch(`${API_BASE_URL}/api/spray_calc?${queryParams}`);
