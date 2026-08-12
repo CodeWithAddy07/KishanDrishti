@@ -6,11 +6,6 @@ import { predictDisease } from "../services/api";
 import MetricCard from "../components/MetricCard";
 import SectionTitle from "../components/SectionTitle";
 
-// Member 2 Components Import
-import DiseaseDetector from "../components/Member2/DiseaseDetector";
-import ModelMetrics from "../components/Member2/ModelMetrics";
-import ClassList from "../components/Member2/ClassList";
-
 const Diagnosis = () => {
   const { t } = useLanguage();
   const { setPredictedDisease } = useSharedState();
@@ -286,17 +281,6 @@ const Diagnosis = () => {
             </div>
           )}
         </div>
-      </div>
-
-      {/* ============================================================ */}
-      {/* MEMBER 2 - 20 CLASS DETECTION & EVALUATION SECTION */}
-      {/* ============================================================ */}
-      <hr className="border-slate-200 dark:border-slate-800 my-8" />
-
-      <div className="space-y-8">
-        <DiseaseDetector />
-        <ModelMetrics />
-        <ClassList />
       </div>
     </div>
   );

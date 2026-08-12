@@ -21,14 +21,18 @@ const Home = () => {
             <ShieldCheck className="h-4 w-4 mr-1" />
             SIH 2026 Innovation Project
           </span>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black font-display tracking-tight leading-tight max-w-5xl">
-            {t("heroTitle")}
+          
+          {/* Main Tagline as Title */}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black font-display tracking-tight leading-tight max-w-5xl text-white drop-shadow-lg">
+            Grow More. Spend Less. Farm Smarter.
           </h1>
-          <p className="mt-6 text-lg sm:text-xl text-emerald-100/80 max-w-3xl leading-relaxed">
-            {t("heroSubtitle")}
+
+          {/* Subtext */}
+          <p className="mt-6 text-lg sm:text-xl text-emerald-100/90 max-w-3xl leading-relaxed">
+            Reduce crop losses and optimize every acre with real-time disease analysis, weather forecasts, mandi prices, and precision spray calculations.
           </p>
+
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center w-full max-w-xs sm:max-w-md">
-            {/* ROUTE NAVIGATION PLACEHOLDER */}
             <Link
               to="/diagnosis"
               className="inline-flex items-center justify-center px-8 py-4 rounded-xl text-base font-bold bg-white text-emerald-900 hover:bg-emerald-50 dark:hover:bg-slate-100 shadow-xl transition-all duration-300 hover:scale-105"

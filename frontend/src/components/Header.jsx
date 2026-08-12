@@ -4,6 +4,9 @@ import { Sun, Moon, Menu, X, Globe, User } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { useLanguage } from "../context/LanguageContext";
 
+// Directly import JPEG logo from assets
+import logoImg from "../assets/logo.jpeg";
+
 const Header = () => {
   const { theme, toggleTheme } = useTheme();
   const { language, toggleLanguage, t } = useLanguage();
@@ -22,14 +25,20 @@ const Header = () => {
       {/* Top Row: Brand Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-slate-100 dark:border-slate-800">
         <div className="flex justify-between items-center h-16">
+          
           {/* Logo & Application Name */}
           <div className="flex items-center space-x-3">
-            <div className="flex-shrink-0 h-10 w-10 rounded-full bg-emerald-600 dark:bg-emerald-500 flex items-center justify-center shadow-lg text-white font-bold text-lg">
-              KD
-            </div>
+            
+            {/* Custom High-Res JPEG Logo */}
+            <img 
+              src={logoImg} 
+              alt="KishanDrishti Logo" 
+              className="h-10 w-10 object-cover rounded-full shadow-md hover:scale-105 transition-transform duration-200" 
+            />
+
             <div>
-              <h1 className="text-xl font-bold tracking-tight text-slate-800 dark:text-white leading-none">
-                KisanDrishti
+              <h1 className="text-xl font-extrabold tracking-tight text-slate-800 dark:text-white leading-none">
+                KishanDrishti
               </h1>
               <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 uppercase font-semibold tracking-wider">
                 {t("logoSubtitle")}
@@ -63,7 +72,6 @@ const Header = () => {
             </button>
 
             {/* Profile Placeholder */}
-            {/* BACKEND INTEGRATION PLACEHOLDER: Add user authentication profile dropdown or login buttons here */}
             <button 
               className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
               title="Farmer Profile (Demo Only)"

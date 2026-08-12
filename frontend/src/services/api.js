@@ -1,4 +1,5 @@
-const API_BASE_URL = 'https://kishandrishti-api.onrender.com';
+// Local Testing ke liye fallback URL: http://127.0.0.1:8000
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
 // 1. Weather Advisory API
 export const getWeather = async (location) => {
@@ -37,7 +38,8 @@ export const predictDisease = async (fileInput, acres = 2.5, windSpeed = 10.0) =
     formData.append('acres', acres);
     formData.append('wind_speed', windSpeed);
 
-    const response = await fetch(`${API_BASE_URL}/api/diagnose`, {
+    // Connected directly to Backend FastAPI endpoint
+    const response = await fetch(`${API_BASE_URL}/predict`, {
       method: 'POST',
       body: formData,
     });
@@ -48,17 +50,12 @@ export const predictDisease = async (fileInput, acres = 2.5, windSpeed = 10.0) =
 
     const data = await response.json();
 
-    if (data.success === false) {
-      throw new Error(data.error || "Prediction failed on server.");
-    }
-
-    const predictionObj = data.prediction || data;
     return {
-      disease: predictionObj.disease || "Tomato Early Blight",
-      confidence: predictionObj.confidence || 92.5,
-      severity: predictionObj.severity || "Low",
-      advice: predictionObj.advice || ["Apply recommended fungicide.", "Ensure proper airflow."],
-      filename: fileInput.name || "uploaded_leaf.jpg",
+      disease: data.disease,
+      confidence: data.confidence,
+      severity: data.severity,
+      advice: data.advice,
+      filename: data.filename || fileInput.name || "uploaded_leaf.jpg",
       spray_calculation: data.spray_calculation || {},
       rawResponse: data
     };

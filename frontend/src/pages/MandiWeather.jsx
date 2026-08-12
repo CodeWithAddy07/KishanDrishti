@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, Thermometer, Wind, CloudRain, ShieldAlert, BookOpen, MapPin, DollarSign } from "lucide-react";
+import { Search, Thermometer, Wind, CloudRain, BookOpen, MapPin, DollarSign } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import { useSharedState } from "../context/SharedStateContext";
 import { getWeather, getMandiRates } from "../services/api";
@@ -17,7 +17,7 @@ const MandiWeather = () => {
     setWindSpeed
   } = useSharedState();
 
-  const [locInput, setLocInput] = useState(selectedLocation || "");
+  const [locInput, setLocInput] = useState(selectedLocation || "delhi");
   const [cropInput, setCropInput] = useState(selectedCrop || "");
 
   const [weather, setWeather] = useState(null);
@@ -52,17 +52,23 @@ const MandiWeather = () => {
 
     setLoading(true);
     setHasSearched(true);
-    setSelectedLocation(locInput);
+
+    // Selected city lookup label
+    const selectedCityObj = citiesList.find((c) => c.key === locInput);
+    const cityLabel = selectedCityObj ? selectedCityObj.label.split(" ")[0] : locInput;
+
+    setSelectedLocation(cityLabel);
     setSelectedCrop(cropInput);
 
     try {
-      const wData = await getWeather(locInput);
+      const wData = await getWeather(cityLabel);
       setWeather(wData);
+      
       if (wData && (wData.wind_speed || wData.wind_speed_kmh)) {
         setWindSpeed(wData.wind_speed || wData.wind_speed_kmh);
       }
 
-      const mData = await getMandiRates(locInput, cropInput);
+      const mData = await getMandiRates(cityLabel, cropInput);
       setMandiRates(mData || []);
     } catch (err) {
       console.error("Error fetching advisory data:", err);
@@ -114,7 +120,7 @@ const MandiWeather = () => {
         <button 
           type="submit" 
           disabled={loading}
-          className="px-8 py-3.5 bg-emerald-500 hover:bg-emerald-600 font-bold rounded-xl text-white shadow-lg shadow-emerald-500/20 transition-all active:scale-95 flex items-center gap-2"
+          className="px-8 py-3.5 bg-emerald-500 hover:bg-emerald-600 font-bold rounded-xl text-white shadow-lg shadow-emerald-500/20 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
         >
           <Search className="w-4 h-4" />
           {loading ? "Searching..." : "Search"}
@@ -175,17 +181,17 @@ const MandiWeather = () => {
                   <th className="p-4">Crop</th>
                   <th className="p-4">Mandi Market</th>
                   <th className="p-4">State</th>
-                  <th className="p-4 text-right">Price per Quintal</th>
+                  <th className="p-4 text-right">Modal Price</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60 text-sm">
                 {mandiRates.map((item, idx) => (
                   <tr key={idx} className="hover:bg-slate-800/40 transition-colors">
                     <td className="p-4 font-bold text-white">{item.crop}</td>
-                    <td className="p-4 text-gray-300">{item.mandi}</td>
+                    <td className="p-4 text-gray-300">{item.market || item.mandi}</td>
                     <td className="p-4 text-gray-400">{item.state}</td>
                     <td className="p-4 font-extrabold text-right text-emerald-400 text-base">
-                      ₹ {item.price_per_quintal || item.price} /
+                      ₹ {item.modal_price || item.price_per_quintal || item.price} / Quintal
                     </td>
                   </tr>
                 ))}
