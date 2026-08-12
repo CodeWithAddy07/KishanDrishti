@@ -20,7 +20,7 @@ app.add_middleware(
 )
 
 # ---------------------------------------------------------
-# GOVT API KEY (data.gov.in) - Put your generated key here!
+# GOVT API KEY (data.gov.in)
 # ---------------------------------------------------------
 GOV_API_KEY = "579b464db66ec23bdd000001953846ab2bc44fa65f550064462fe03d"
 
@@ -32,7 +32,10 @@ CLASS_NAMES_PATH = BASE_DIR / "models" / "class_names.json"
 
 # Load 20-Class Keras Model & Class Mappings
 print("Loading KisanDrishti 20-Class AI Model...")
-model = tf.keras.models.load_model(MODEL_PATH)
+
+# FIX APPLIED HERE: compile=False prevents Keras 3 deserialization errors on cloud servers
+model = tf.keras.models.load_model(MODEL_PATH, compile=False)
+
 with open(CLASS_NAMES_PATH, "r") as f:
     class_names = json.load(f)
 print("Model Loaded Successfully!")
