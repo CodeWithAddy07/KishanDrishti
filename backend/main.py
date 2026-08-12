@@ -1,3 +1,8 @@
+import os
+
+# Enable Legacy Keras engine BEFORE TensorFlow import to bypass Keras 3 deserialization error
+os.environ["TF_USE_LEGACY_KERAS"] = "1"
+
 import json
 import io
 import requests
@@ -33,7 +38,7 @@ CLASS_NAMES_PATH = BASE_DIR / "models" / "class_names.json"
 # Load 20-Class Keras Model & Class Mappings
 print("Loading KisanDrishti 20-Class AI Model...")
 
-# FIX APPLIED HERE: compile=False prevents Keras 3 deserialization errors on cloud servers
+# compile=False bypasses optimizer/initializer deserialization crashes
 model = tf.keras.models.load_model(MODEL_PATH, compile=False)
 
 with open(CLASS_NAMES_PATH, "r") as f:
@@ -159,7 +164,6 @@ async def get_weather(location: str = "Delhi"):
     loc_clean = location.strip().capitalize() if location else "Delhi"
     
     try:
-        # Step A: Get Latitude and Longitude for Location
         geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={loc_clean}&count=1&language=en&format=json"
         geo_res = requests.get(geo_url, timeout=5)
         
@@ -169,14 +173,12 @@ async def get_weather(location: str = "Delhi"):
             lon = city_data["longitude"]
             display_name = city_data.get("name", loc_clean)
 
-            # Step B: Fetch Live Weather
             weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code"
             w_res = requests.get(weather_url, timeout=5)
 
             if w_res.status_code == 200:
                 current = w_res.json().get("current", {})
                 
-                # Weather code mapping
                 code = current.get("weather_code", 0)
                 condition = "Clear Sky"
                 if code in [1, 2, 3]:
@@ -200,7 +202,6 @@ async def get_weather(location: str = "Delhi"):
     except Exception as e:
         print("Live Weather API Fetch Error, using fallback:", e)
 
-    # Fallback in case of network issue
     return {
         "location": loc_clean,
         "temp_c": 28.5,
@@ -219,7 +220,6 @@ async def get_mandi_rates(location: str = "Delhi", crop: str = "Tomato"):
     loc_clean = location.strip().title() if location else "Delhi"
     crop_clean = crop.strip().title() if crop else "Tomato"
 
-    # Call official Data.gov.in Agmarknet API
     gov_url = f"https://api.data.gov.in/resource/9ef7421f-111d-4c18-7e48-82a376d52371?api-key={GOV_API_KEY}&format=json&limit=10"
     
     if crop_clean and crop_clean.lower() != "all crops":
@@ -250,7 +250,6 @@ async def get_mandi_rates(location: str = "Delhi", crop: str = "Tomato"):
     except Exception as e:
         print("Govt API fetch error, falling back to dynamic formula:", e)
 
-    # Backup dynamic price generation (Safe fallback)
     base_prices = {
         "Chilli": 15000, "Tomato": 2100, "Potato": 1450, 
         "Wheat": 2350, "Apple": 7200, "Onion": 1850, "Rice": 3200
