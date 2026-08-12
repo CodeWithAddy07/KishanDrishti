@@ -4,6 +4,6 @@ pandas
 requests
 Pillow
 python-multipart
-tensorflow==2.16.1
-tf_keras
+tensorflow
+keras
 numpy

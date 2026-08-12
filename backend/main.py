@@ -1,8 +1,3 @@
-import os
-
-# Enable Legacy Keras engine BEFORE TensorFlow import to bypass Keras 3 deserialization error
-os.environ["TF_USE_LEGACY_KERAS"] = "1"
-
 import json
 import io
 import requests
@@ -10,6 +5,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 import tensorflow as tf
+import keras  # Native Keras 3 Engine
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -38,8 +34,8 @@ CLASS_NAMES_PATH = BASE_DIR / "models" / "class_names.json"
 # Load 20-Class Keras Model & Class Mappings
 print("Loading KisanDrishti 20-Class AI Model...")
 
-# compile=False bypasses optimizer/initializer deserialization crashes
-model = tf.keras.models.load_model(MODEL_PATH, compile=False)
+# Native Keras 3 loader with compile=False for cloud safety
+model = keras.models.load_model(MODEL_PATH, compile=False)
 
 with open(CLASS_NAMES_PATH, "r") as f:
     class_names = json.load(f)
