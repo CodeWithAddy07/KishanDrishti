@@ -4,6 +4,5 @@ pandas
 requests
 Pillow
 python-multipart
-tensorflow
-keras
+ai-edge-litert
 numpy

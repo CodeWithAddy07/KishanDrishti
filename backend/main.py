@@ -4,8 +4,7 @@ import requests
 from pathlib import Path
 import numpy as np
 from PIL import Image
-import tensorflow as tf
-import keras  # Native Keras 3 Engine
+from ai_edge_litert.interpreter import Interpreter
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -28,18 +27,20 @@ GOV_API_KEY = "579b464db66ec23bdd000001953846ab2bc44fa65f550064462fe03d"
 
 # Resolve paths dynamically relative to project root
 BASE_DIR = Path(__file__).resolve().parent.parent
-MODEL_PATH = BASE_DIR / "models" / "best_plant_disease_model_20class.keras"
+MODEL_PATH = BASE_DIR / "models" / "model.tflite"
 CLASS_NAMES_PATH = BASE_DIR / "models" / "class_names.json"
 
-# Load 20-Class Keras Model & Class Mappings
-print("Loading KisanDrishti 20-Class AI Model...")
+# Load TFLite Model (Lightweight & zero Keras deserialization errors)
+print("Loading KisanDrishti TFLite AI Model...")
+interpreter = Interpreter(model_path=str(MODEL_PATH))
+interpreter.allocate_tensors()
 
-# Native Keras 3 loader with compile=False for cloud safety
-model = keras.models.load_model(MODEL_PATH, compile=False)
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
 
 with open(CLASS_NAMES_PATH, "r") as f:
     class_names = json.load(f)
-print("Model Loaded Successfully!")
+print("TFLite Model Loaded Successfully!")
 
 # 20 Classes Actionable Advisory Mappings
 ADVISORY_MAP = {
@@ -78,14 +79,15 @@ async def predict(file: UploadFile = File(...)):
         contents = await file.read()
         image = Image.open(io.BytesIO(contents)).convert("RGB")
         
-        # Resize to 224x224 (Rescaling layer is built-in inside model)
+        # Resize to 224x224
         image = image.resize((224, 224))
         image_array = np.array(image).astype("float32")
         image_array = np.expand_dims(image_array, axis=0)
 
-        # Inference
-        predictions = model.predict(image_array, verbose=0)
-        probabilities = predictions[0]
+        # TFLite Inference
+        interpreter.set_tensor(input_details[0]['index'], image_array)
+        interpreter.invoke()
+        probabilities = interpreter.get_tensor(output_details[0]['index'])[0]
 
         predicted_idx = int(np.argmax(probabilities))
         confidence = round(float(probabilities[predicted_idx] * 100), 2)
